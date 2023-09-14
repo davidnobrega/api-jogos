@@ -9,12 +9,20 @@ class JogosController extends Controller
 {
     public function index()
     {
-        $cadastros = Jogo::all(); 
-        return response()->json($cadastros);
+        $jogos = Jogo::all(); 
+        return response()->json($jogos, 200);
     }
 
-    public function jogo(Request $request)
+    public function store(Request $request)
     {
+        $this->validate($request, [
+            'name' => 'required',
+            'category' => 'required',
+            'description' => 'required',
+            'image' => 'required',
+            'favorite' => 'required',
+        ]);
+
         $jogo = new Jogo();
         $jogo->name = $request->input('name');
         $jogo->category = $request->input('category');
@@ -27,20 +35,35 @@ class JogosController extends Controller
         return response()->json($jogo, 201);
     }
 
-    public function getJogos(){
-        $jogo = Jogo::get();
+    public function update(Request $request, $id) {
+        $jogo = Jogo::find($id);
+
+        if (!$jogo) {
+            return response()->json(["message" => "Jogo não encontrado"], 404);
+        }
+
+        $this->validate($request, [
+            'name' => 'required',
+            'category' => 'required',
+            'description' => 'required',
+            'image' => 'required',
+            'favorite' => 'required',
+        ]);
+
+        $jogo->update($request->all());
 
         return response()->json($jogo, 200);
     }
-    
 
-    public function updateJogos(Request $request, $id)
-    {
-        // Lógica para atualizar um registro de Jogo específico vai aqui
-    }
+    public function destroy($id) {
+        $jogo = Jogo::find($id);
 
-    public function deleteJogos($id)
-    {
-        // Lógica para excluir um registro de Jogo específico vai aqui
+        if (!$jogo) {
+            return response()->json(["message" => "Jogo não encontrado"], 404);
+        }
+
+        $jogo->delete();
+
+        return response()->json(["message" => "Jogo deletado"], 202);
     }
 }
